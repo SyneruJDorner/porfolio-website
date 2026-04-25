@@ -5,7 +5,6 @@
   --sand: #d9b08c;
   --glow: #ffcb9a;
   --mist: #d1e8e2;
-  --panel: rgba(10, 14, 13, 0.62);
   --border: rgba(209, 232, 226, 0.16);
 }
 
@@ -164,9 +163,9 @@ header {
   padding: 0.5rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: var(--panel);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: rgba(10, 14, 13, 0.35);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   max-width: min(100%, 980px);
 }
 
@@ -341,6 +340,19 @@ body.js-enhanced .section.in-view .section-head h2 {
 
 .section-head h2 {
   font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+  color: var(--white);
+}
+
+.value-card h3,
+.project-card h3,
+.bento article h3,
+.timeline li h3,
+.timeline li strong {
+  color: var(--white);
+}
+
+.contact h3 {
+  color: var(--sand);
 }
 
 .split {
@@ -352,6 +364,10 @@ body.js-enhanced .section.in-view .section-head h2 {
 .split p {
   margin: 0;
   color: rgba(209, 232, 226, 0.78);
+}
+
+.split .eyebrow {
+  color: var(--sand);
 }
 
 .values-grid {
@@ -368,8 +384,8 @@ body.js-enhanced .section.in-view .section-head h2 {
   border: 1px solid var(--border);
   background: linear-gradient(
     165deg,
-    rgba(17, 100, 102, 0.2),
-    rgba(10, 14, 13, 0.58)
+    rgba(17, 100, 102, 0.55),
+    rgba(10, 14, 13, 0.78)
   );
   border-radius: 0.95rem;
 }
@@ -444,13 +460,20 @@ body.js-enhanced .cards .project-card.card-visible {
   margin-top: 0.85rem;
 }
 
-.tag-row span {
+.tag-row span,
+.tag-row a {
   border: 1px solid rgba(209, 232, 226, 0.2);
   border-radius: 999px;
   padding: 0.22rem 0.55rem;
   font-size: 0.68rem;
-  color: rgba(209, 232, 226, 0.8);
+  color: var(--glow);
   background: rgba(10, 14, 13, 0.45);
+  text-decoration: none;
+}
+
+.tag-row a:hover {
+  border-color: var(--glow);
+  background: rgba(255, 203, 154, 0.1);
 }
 
 .cards {
@@ -459,10 +482,11 @@ body.js-enhanced .cards .project-card.card-visible {
   gap: 0.9rem;
 }
 
-.card-sub {
+.card-sub,
+.project-card .card-sub {
   margin-top: 0.45rem;
   font-size: 0.75rem;
-  color: var(--sand);
+  color: var(--glow);
 }
 
 .impact-list {
