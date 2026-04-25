@@ -11,7 +11,7 @@
   const CARD_REVEAL_THRESHOLD = 0.24;
   const RATE_LIMIT_MS = 30_000;
   const MIN_WHEEL_DELTA = 8;
-  const BACKGROUND_SAMPLE_FPS = 60;
+  const BACKGROUND_SAMPLE_FPS = 24;
   const VIDEO_SEEK_EPSILON = 1 / BACKGROUND_SAMPLE_FPS;
   const BACKGROUND_VIDEO_PATH = "assets/bg/background.mp4";
   const CONTACT_RECIPIENT = "justindd1994@gmail.com";
@@ -62,6 +62,8 @@
   let hasVideoBackground = false;
   let videoDuration = 0;
   let activeVideoTime = -1;
+  let pendingVideoTime = -1;
+  let seekInFlight = false;
   let isSnapAnimating = false;
   let snapSections = [];
   let cachedMaxScroll = 1;
@@ -304,6 +306,7 @@
         bgVideo = video;
         hasVideoBackground = true;
         bgCycle.style.display = "none";
+        video.addEventListener("seeked", flushPendingSeek);
         resolve(true);
       };
 
@@ -321,6 +324,16 @@
     });
   }
 
+  function flushPendingSeek() {
+    seekInFlight = false;
+    if (!bgVideo || pendingVideoTime < 0) return;
+    if (Math.abs(pendingVideoTime - activeVideoTime) < VIDEO_SEEK_EPSILON) return;
+    activeVideoTime = pendingVideoTime;
+    pendingVideoTime = -1;
+    seekInFlight = true;
+    bgVideo.currentTime = activeVideoTime;
+  }
+
   function updateBackgroundByScroll(scrollRatio) {
     if (!hasVideoBackground || !bgVideo || videoDuration <= 0) return;
 
@@ -329,10 +342,17 @@
       Math.round(clampedRatio * videoDuration * BACKGROUND_SAMPLE_FPS) /
       BACKGROUND_SAMPLE_FPS;
 
-    if (Math.abs(steppedTime - activeVideoTime) >= VIDEO_SEEK_EPSILON) {
-      bgVideo.currentTime = steppedTime;
-      activeVideoTime = steppedTime;
+    if (Math.abs(steppedTime - activeVideoTime) < VIDEO_SEEK_EPSILON) return;
+
+    if (seekInFlight) {
+      pendingVideoTime = steppedTime;
+      return;
     }
+
+    activeVideoTime = steppedTime;
+    pendingVideoTime = -1;
+    seekInFlight = true;
+    bgVideo.currentTime = steppedTime;
   }
 
   function recomputeScrollBounds() {

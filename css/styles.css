@@ -77,8 +77,10 @@ body {
   z-index: 0;
   object-fit: cover;
   pointer-events: none;
-  filter: blur(6px) brightness(0.62);
-  transform: scale(1.03);
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  contain: strict;
 }
 
 .bg-shade {
