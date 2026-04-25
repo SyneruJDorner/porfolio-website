@@ -1,0 +1,10 @@
+{
+  "name": "portfolio-website",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Local runnable personal portfolio starter",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -c-1",
+    "start:perf": "npx serve . -l 8080"
+  }
+}
