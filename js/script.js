@@ -14,6 +14,8 @@
   const BACKGROUND_SAMPLE_FPS = 60;
   const VIDEO_SEEK_EPSILON = 1 / BACKGROUND_SAMPLE_FPS;
   const BACKGROUND_VIDEO_PATH = "assets/bg/background.mp4";
+  const CONTACT_RECIPIENT = "justindd1994@gmail.com";
+  const CONTACT_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_RECIPIENT}`;
 
   function resetToHeroOnLoad() {
     if (window.location.hash) {
@@ -368,37 +370,6 @@
     contactStatus.style.color = isError ? "#ffcb9a" : "#d1e8e2";
   }
 
-  function setContactStatusWithLink(text, href, linkLabel, isError) {
-    if (!contactStatus) return;
-
-    contactStatus.style.color = isError ? "#ffcb9a" : "#d1e8e2";
-    contactStatus.textContent = "";
-
-    const prefix = document.createElement("span");
-    prefix.textContent = `${text} `;
-    contactStatus.appendChild(prefix);
-
-    const link = document.createElement("a");
-    link.href = href;
-    link.textContent = linkLabel;
-    link.style.color = "inherit";
-    link.style.textDecoration = "underline";
-    contactStatus.appendChild(link);
-  }
-
-  function triggerMailto(mailtoUrl) {
-    try {
-      const tempLink = document.createElement("a");
-      tempLink.href = mailtoUrl;
-      tempLink.style.display = "none";
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      tempLink.remove();
-    } catch {
-      // Fail silently and rely on fallback message.
-    }
-  }
-
   function isRateLimited() {
     const key = "contact:lastSubmit";
     const now = Date.now();
@@ -413,13 +384,14 @@
   function bindContactForm() {
     if (!contactForm) return;
 
-    contactForm.addEventListener("submit", (event) => {
+    contactForm.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const name = document.getElementById("contactName").value.trim();
       const email = document.getElementById("contactEmail").value.trim();
       const message = document.getElementById("contactMessage").value.trim();
       const website = document.getElementById("contactWebsite").value.trim();
+      const submitButton = contactForm.querySelector("button[type='submit']");
 
       if (website) {
         setContactStatus("Thanks. Your message was received.", false);
@@ -444,23 +416,49 @@
         return;
       }
 
-      const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
-      const body = encodeURIComponent(
-        `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-      );
-      const mailtoUrl = `mailto:justindd1994@gmail.com?subject=${subject}&body=${body}`;
+      const previousButtonText = submitButton ? submitButton.textContent : "";
 
-      triggerMailto(mailtoUrl);
-      setContactStatus("Opening your email app...", false);
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending...";
+      }
 
-      window.setTimeout(() => {
-        setContactStatusWithLink(
-          "If nothing opened, use this direct link:",
-          mailtoUrl,
-          "Open email draft",
-          false,
+      setContactStatus("Sending message...", false);
+
+      try {
+        const response = await fetch(CONTACT_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            message,
+            _subject: `Portfolio Contact from ${name}`,
+            _template: "table",
+            _captcha: "false",
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        setContactStatus("Message sent successfully. Thank you.", false);
+        contactForm.reset();
+      } catch {
+        setContactStatus(
+          "Could not send right now. Please email justindd1994@gmail.com directly.",
+          true,
         );
-      }, 1200);
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = previousButtonText || "Send Message";
+        }
+      }
     });
   }
 
