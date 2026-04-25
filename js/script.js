@@ -368,6 +368,37 @@
     contactStatus.style.color = isError ? "#ffcb9a" : "#d1e8e2";
   }
 
+  function setContactStatusWithLink(text, href, linkLabel, isError) {
+    if (!contactStatus) return;
+
+    contactStatus.style.color = isError ? "#ffcb9a" : "#d1e8e2";
+    contactStatus.textContent = "";
+
+    const prefix = document.createElement("span");
+    prefix.textContent = `${text} `;
+    contactStatus.appendChild(prefix);
+
+    const link = document.createElement("a");
+    link.href = href;
+    link.textContent = linkLabel;
+    link.style.color = "inherit";
+    link.style.textDecoration = "underline";
+    contactStatus.appendChild(link);
+  }
+
+  function triggerMailto(mailtoUrl) {
+    try {
+      const tempLink = document.createElement("a");
+      tempLink.href = mailtoUrl;
+      tempLink.style.display = "none";
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      tempLink.remove();
+    } catch {
+      // Fail silently and rely on fallback message.
+    }
+  }
+
   function isRateLimited() {
     const key = "contact:lastSubmit";
     const now = Date.now();
@@ -417,10 +448,19 @@
       const body = encodeURIComponent(
         `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
       );
+      const mailtoUrl = `mailto:justindd1994@gmail.com?subject=${subject}&body=${body}`;
 
-      window.location.href = `mailto:justindd1994@gmail.com?subject=${subject}&body=${body}`;
+      triggerMailto(mailtoUrl);
       setContactStatus("Opening your email app...", false);
-      contactForm.reset();
+
+      window.setTimeout(() => {
+        setContactStatusWithLink(
+          "If nothing opened, use this direct link:",
+          mailtoUrl,
+          "Open email draft",
+          false,
+        );
+      }, 1200);
     });
   }
 
