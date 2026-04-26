@@ -11,8 +11,7 @@
   const CARD_REVEAL_THRESHOLD = 0.24;
   const RATE_LIMIT_MS = 30_000;
   const MIN_WHEEL_DELTA = 8;
-  const BACKGROUND_SAMPLE_FPS = 24;
-  const VIDEO_SEEK_EPSILON = 1 / BACKGROUND_SAMPLE_FPS;
+  const VIDEO_SEEK_EPSILON = 0.001;
   const BACKGROUND_VIDEO_PATH = "assets/bg/background.mp4";
   const CONTACT_RECIPIENT = "justindd1994@gmail.com";
   const CONTACT_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT_RECIPIENT}`;
@@ -338,21 +337,19 @@
     if (!hasVideoBackground || !bgVideo || videoDuration <= 0) return;
 
     const clampedRatio = Math.min(1, Math.max(0, scrollRatio));
-    const steppedTime =
-      Math.round(clampedRatio * videoDuration * BACKGROUND_SAMPLE_FPS) /
-      BACKGROUND_SAMPLE_FPS;
+    const targetTime = clampedRatio * videoDuration;
 
-    if (Math.abs(steppedTime - activeVideoTime) < VIDEO_SEEK_EPSILON) return;
+    if (Math.abs(targetTime - activeVideoTime) < VIDEO_SEEK_EPSILON) return;
 
     if (seekInFlight) {
-      pendingVideoTime = steppedTime;
+      pendingVideoTime = targetTime;
       return;
     }
 
-    activeVideoTime = steppedTime;
+    activeVideoTime = targetTime;
     pendingVideoTime = -1;
     seekInFlight = true;
-    bgVideo.currentTime = steppedTime;
+    bgVideo.currentTime = targetTime;
   }
 
   function recomputeScrollBounds() {

@@ -46,7 +46,7 @@ body {
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -279,7 +279,7 @@ h1 {
 
 .section {
   padding: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 4vw, 4rem);
-  max-width: 1150px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -417,7 +417,7 @@ body.js-enhanced .section.in-view .section-head h2 {
 
 .bento {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.9rem;
 }
 
@@ -728,6 +728,12 @@ body.js-enhanced .contact.in-view .contact-form {
 .profile-link {
   margin-top: 1rem;
   color: rgba(209, 232, 226, 0.8);
+}
+
+@media (max-width: 1400px) {
+  .bento {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 1024px) {
